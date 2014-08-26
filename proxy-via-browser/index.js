@@ -19,15 +19,20 @@ io.on('connection', function(socket){
 function proxyReq(req, res) {
   console.log("Request: " + req.url);
   if (_currentSocket !== undefined) {  
+   var chunkNr = 0;
    // thanks to Socket.IO magic, we can pass a function with the socket message
    // that, in escense, is request/response.
    // Once the proxy on the server has retrieved the file, it is passed as a binary buffer
    // in the 'data' argument of the callback function below.
    // essentially, the server 'executes' this function, but it is executed in the context here. 
-    _currentSocket.emit('request', req.url, function(data) { 
-      console.log('received data from server: ' + data.url); 
-      res.statusCode = 200;
-      res.end(data.content);
+    _currentSocket.emit('request', req.url); 
+    res.writeHead(200, { "Content-Type": 'application/octet-stream' });  
+    _currentSocket.on('chunk', function(data) {
+      res.write(data.chunk, 'binary');
+      console.log('received chunk #' + chunkNr++ + ' of data');
+    });
+    _currentSocket.on('done', function(data) {
+      res.end();
     });
   }
   else {

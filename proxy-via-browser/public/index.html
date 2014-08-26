@@ -12,7 +12,8 @@
   // create a socket connection to our server
   // this server will be responsible to retrieve the files ROV's want to retrieve
   // ROV NodeProxy -> Topside browser -> Server -> Topside browser -> ROV NodeProxy
-  var proxySocket = io('build.openrov.com:3001');
+  // var proxySocket = io('build.openrov.com:3001');
+  var proxySocket = io('localhost:3001');
   proxySocket.on('connect', function() {
     $('#messages').append('<li>Connected</li>');
   });
@@ -21,9 +22,11 @@
   // when there is a 'request' we send it as a 'download' message to the
   // proxySocket passing the callback. the callback is passed accross thanks to 
   // Socket.io magic and will be called on the server
-  socket.on('request', function(url, clbk) { 
+  socket.on('request', function(url) { 
     $('#messages').append('<li>Requesting ' + url +'</li>'); 
-    proxySocket.emit('download', url, clbk);
+    proxySocket.emit('download', url);
+    proxySocket.on('chunk', function(data) { socket.emit('chunk', data); });
+    proxySocket.on('done', function(data) { socket.emit('done',data); });
   });
 
 </script>
