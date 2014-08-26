@@ -25,17 +25,6 @@ proxy-via-browser
 A http server that publishes a simple html file that does all the socket.io connections and passes the messages.
 Beside that, it acts as a proxy server to accept connections from commands on the ROV (like npm).
 
-
-Using npm with a proxy
-====================
-
-We have to tell npm to use a proxy and to use HTTP to connect to the registry:
-
-
-       npm config set registry http://registry.npmjs.org/
-       npm config set proxy http://localhost:3000
-
-
 How to use
 ==========
 
@@ -48,5 +37,14 @@ On the ROV
 
     cd proxy-via-browser
     node index.js 
+
+
+Using npm with a proxy
+----------------------
+
+We have to tell npm to use a proxy and to use HTTP to connect to the registry:
+
+       npm config set registry http://registry.npmjs.org/
+       npm config set proxy http://localhost:3000
 
 
