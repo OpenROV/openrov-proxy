@@ -1,37 +1,29 @@
 <!doctype html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
+    <title>OpenROV Browser proxy middleware</title>
   </head>
   <body>
     <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script>
 
+  // create a socket connection to our server
+  // this server will be responsible to retrieve the files ROV's want to retrieve
+  // ROV NodeProxy -> Topside browser -> Server -> Topside browser -> ROV NodeProxy
   var proxySocket = io('localhost:3001');
   proxySocket.on('connect', function() {
     $('#messages').append('<li>Connected</li>');
   });
 
   var socket = io();
+  // when there is a 'request' we send it as a 'download' message to the
+  // proxySocket passing the callback. the callback is passed accross thanks to 
+  // Socket.io magic and will be called on the server
   socket.on('request', function(url, clbk) { 
     $('#messages').append('<li>Requesting ' + url +'</li>'); 
     proxySocket.emit('download', url, clbk);
-
   });
 
 </script>

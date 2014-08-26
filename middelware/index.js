@@ -1,10 +1,6 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var connect = require('connect');
-var httpProxy = require('http-proxy');
-var fs = require('fs');
-var path = require('path');
 
 io.on('connection', function(socket){
   console.log('a user connected');
@@ -23,19 +19,28 @@ io.on('connection', function(socket){
 function proxyReq(req, res) {
   console.log("Request: " + req.url);
   if (_currentSocket !== undefined) {  
+   // thanks to Socket.IO magic, we can pass a function with the socket message
+   // that, in escense, is request/response.
+   // Once the proxy on the server has retrieved the file, it is passed as a binary buffer
+   // in the 'data' argument of the callback function below.
+   // essentially, the server 'executes' this function, but it is executed in the context here. 
     _currentSocket.emit('request', req.url, function(data) { 
       console.log('received data from server: ' + data.url); 
       res.statusCode = 200;
       res.end(data.content);
     });
   }
+  else {
+    res.statusCode = 500;
+    res.end("There was no browser connected, check that there is a ROV connected");
+  }
 };
 
 app.use(function(req, res){
-  console.log('foo');
-  if (req.url == '/' ) {
+  if (req.url == '/' ) { // if the request is for '/' we send the index file
     res.sendfile('./public/index.html');
   }
+  // otherwise we proxying the request
   else { proxyReq(req, res); }
 });
 
@@ -43,13 +48,3 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
-httpProxy.createServer({
-  target: {
-    host: 'localhost',
-    port: 3000
-  },
-  ssl: {
-    key: fs.readFileSync(path.join('certs', 'key.pem'), 'utf8'),
-    cert: fs.readFileSync(path.join('certs', 'key-cert.pem'), 'utf8')
-  }
-}).listen(3003);
