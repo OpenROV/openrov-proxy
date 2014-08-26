@@ -12,7 +12,7 @@
   // create a socket connection to our server
   // this server will be responsible to retrieve the files ROV's want to retrieve
   // ROV NodeProxy -> Topside browser -> Server -> Topside browser -> ROV NodeProxy
-  var proxySocket = io('localhost:3001');
+  var proxySocket = io('build.openrov.com:3001');
   proxySocket.on('connect', function() {
     $('#messages').append('<li>Connected</li>');
   });

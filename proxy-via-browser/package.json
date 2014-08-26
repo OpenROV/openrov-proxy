@@ -9,5 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.8.5",
+    "socket.io": "^1.0.6"
   }
 }
