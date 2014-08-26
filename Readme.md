@@ -34,3 +34,19 @@ We have to tell npm to use a proxy and to use HTTP to connect to the registry:
 
        npm config set registry http://registry.npmjs.org/
        npm config set proxy http://localhost:3000
+
+
+How to use
+==========
+
+On the middleware server
+
+     node middleware/proxy.js
+
+
+On the ROV
+
+    cd proxy-via-browser
+    node index.js 
+
+
