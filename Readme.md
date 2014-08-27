@@ -14,15 +14,15 @@ Middleware
 ----------
 
 The middleware proxy script runs on a server on the internet.
-The client browser connects via socket.io to it.
+The client browser connects via BinaryJS (https://github.com/binaryjs/binaryjs/) to it.
 Any request that comes through a proxy from the ROV are sent to the middleware on the server.
-The server downloads the files and sends the conntent via socket.io to the client browser.
-The Client browser then send it back to the ROV and to the requesting application.
+The server downloads the files and sends the contents via BinaryJS streams to the client browser.
+The Client browser then send it back to the ROV and to the requesting application via BinaryJS.
 
 proxy-via-browser
 ---------
 
-A http server that publishes a simple html file that does all the socket.io connections and passes the messages.
+A http server that publishes a simple html file that does all the BinaryJS connections and passes the messages.
 Beside that, it acts as a proxy server to accept connections from commands on the ROV (like npm).
 
 How to use
@@ -47,4 +47,17 @@ We have to tell npm to use a proxy and to use HTTP to connect to the registry:
        npm config set registry http://registry.npmjs.org/
        npm config set proxy http://localhost:3000
 
+
+Testing with wget or curl
+--------------------
+
+To test the connection the best is to use wget or curl
+
+wget:
+
+    http_proxy=localhost:3000 wget http://www.google.com/images/srpr/logo11w.png
+
+curl:
+
+    curl --proxy localhost:3000 http://www.google.com/images/srpr/logo11w.png
 
