@@ -1,4 +1,30 @@
-var io = require('socket.io')(3001);
+var http = require('http');
+var BinaryServer = require('binaryjs').BinaryServer;
+var express = require('express');
+var request = require('request');
+
+var app = express();
+var server = http.createServer(app);
+
+var bs = BinaryServer({server: server});
+
+bs.on('connection', function(client){
+  console.log('Connection to client');
+  // Incoming stream from browsers
+  client.on('stream', function(stream, meta) {
+    console.log('Stream requested, url: ' + meta);
+    request(meta, function(error, response, body) {
+      console.log('Done');
+      stream.end();
+    })
+      .pipe(stream);
+  });
+
+});
+server.listen(3001);
+console.log('HTTP and BinaryJS server started on port 3001');
+
+/*var io = require('socket.io')(3001);
 var http = require('http');
 var URL = require('url');
 
@@ -29,3 +55,4 @@ io.on('connection', function(socket){
 	});
 });
 
+*/

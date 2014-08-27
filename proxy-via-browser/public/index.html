@@ -5,30 +5,47 @@
   </head>
   <body>
     <ul id="messages"></ul>
-    <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://cdn.binaryjs.com/0/binary.js"></script>
     <script>
+      // Socket and BinaryClient to the proxy service
+      var proxy = {
+        //socket: io('localhost:3001'),
+        client: new BinaryClient('ws://localhost:3001'),
+        stream: null
+      };
 
-  // create a socket connection to our server
-  // this server will be responsible to retrieve the files ROV's want to retrieve
-  // ROV NodeProxy -> Topside browser -> Server -> Topside browser -> ROV NodeProxy
-  // var proxySocket = io('build.openrov.com:3001');
-  var proxySocket = io('localhost:3001');
-  proxySocket.on('connect', function() {
-    $('#messages').append('<li>Connected</li>');
-  });
+      // Socket and BinaryClient on the ROV
+      var rov = {
+        //socket: io(),
+        client: new BinaryClient('ws://' + document.location.host),
+        stream: null
+      };
 
-  var socket = io();
-  // when there is a 'request' we send it as a 'download' message to the
-  // proxySocket passing the callback. the callback is passed accross thanks to 
-  // Socket.io magic and will be called on the server
-  socket.on('request', function(url) { 
-    $('#messages').append('<li>Requesting ' + url +'</li>'); 
-    proxySocket.emit('download', url);
-    proxySocket.on('chunk', function(data) { socket.emit('chunk', data); });
-    proxySocket.on('done', function(data) { socket.emit('done',data); });
-  });
+      proxy.client.on('open', function() {
+        $('#messages').append('<li>Connected to proxy</li>');
+      });
+      proxy.client.on('close', function() {
+        $('#messages').append('<li>Disconnected from proxy</li>');
+      });
 
+      rov.client.on('open', function() {
+        $('#messages').append('<li>Connected to ROV</li>');
+        rov.client.on('stream', function(stream, meta) {
+          rov.stream = stream;
+          $('#messages').append('<li>Requested ' + meta + '</li>');
+          proxy.stream = proxy.client.createStream(meta);
+          proxy.stream.pipe(rov.stream);
+          proxy.stream.on('end', function() {
+            $('#messages').append('<li>End of stream</li>');
+            rov.stream.end();
+          });
+        });
+
+      });
+      rov.client.on('close', function() {
+        $('#messages').append('<li>Disconnected from ROV</li>');
+      });
 </script>
   </body>
 </html>

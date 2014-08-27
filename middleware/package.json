@@ -9,6 +9,7 @@
   "author": "dominik@openrov.com",
   "license": "MIT",
   "dependencies": {
+    "binaryjs": "^0.2.1",
     "request": "^2.40.0",
     "socket.io": "^1.0.6"
   }
