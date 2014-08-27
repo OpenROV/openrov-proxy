@@ -19,7 +19,7 @@ function proxyReq(req, res) {
   else {
     console.log('No client connected!');
     res.statusCode = 500;
-    res.end();
+    res.end("No client connected!");
   }
 }
 
