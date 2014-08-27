@@ -10,16 +10,12 @@
     <script>
       // Socket and BinaryClient to the proxy service
       var proxy = {
-        //socket: io('localhost:3001'),
-        client: new BinaryClient('ws://localhost:3001'),
-        stream: null
+        client: new BinaryClient('ws://localhost:3001')
       };
 
       // Socket and BinaryClient on the ROV
       var rov = {
-        //socket: io(),
-        client: new BinaryClient('ws://' + document.location.host),
-        stream: null
+        client: new BinaryClient('ws://' + document.location.host)
       };
 
       proxy.client.on('open', function() {
@@ -32,13 +28,12 @@
       rov.client.on('open', function() {
         $('#messages').append('<li>Connected to ROV</li>');
         rov.client.on('stream', function(stream, meta) {
-          rov.stream = stream;
           $('#messages').append('<li>Requested ' + meta + '</li>');
-          proxy.stream = proxy.client.createStream(meta);
-          proxy.stream.pipe(rov.stream);
-          proxy.stream.on('end', function() {
+          proxyStream = proxy.client.createStream(meta);
+          proxyStream.pipe(stream);
+          proxyStream.on('end', function() {
             $('#messages').append('<li>End of stream</li>');
-            rov.stream.end();
+            stream.end();
           });
         });
 
