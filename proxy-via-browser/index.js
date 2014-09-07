@@ -35,13 +35,22 @@ function proxyReq(req, res) {
     console.log("Created stream for: " + req.url);
     res.statusCode = 200;
 
+    stream.on('data', function(data) {
+      // error handling 
+      if (data[0] == '{' && data[data.length-1] == '}') {
+        error = JSON.parse(data);
+        console.log("Error occurd " + error.error + ' ' + error.statusCode);
+        res.statusCode = error.statusCode === 0 ? 500 : error.statusCode;
+        res.end("Error");
+      }
+    });
+
     // this is where some of the magic happens.
     // We sent the url to the proxy and the proxy starts a download
     // of a file and pipes the response to us.
     // Thanks to JavaScript streams, we can just pipe the data on towards our
     // client.
     stream.pipe(res);
-    // TODO: Error handling
 
     stream.on('end', function() {
       // When the proxy tells us everything was sent, we end the response to the client.
