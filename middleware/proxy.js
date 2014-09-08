@@ -8,6 +8,7 @@ var request = require('request');
 var app = express();
 var server = http.createServer(app);
 var bs = BinaryServer({server: server});
+var Tls = require('tls');
 
 bs.on('connection', function(client){
   console.log('Connection to client');
@@ -19,6 +20,94 @@ bs.on('connection', function(client){
       console.log('Got SSL connection request to ' + requestUrl);
       var srvUrl = url.parse(requestUrl );
       console.log(srvUrl.port);
+
+      stream.write('HTTP/1.1 200 Connection Established\r\n' +
+        'Proxy-agent: Node-Proxy\r\n' +
+        '\r\n');
+
+      function connected(streamServer) {
+        if (streamServer) {
+          // socket connected
+          var getReq2 = 'GET ' + srvUrl.path + ' HTTP/1.1\n\rHost: ' + srvUrl.hostname + ':' + srvUrl.port + '\n\r\n\r'
+          var getReq = "GET / HTTP/1.0\n\rHost: encrypted.google.com:443\n\r\n\r";
+          console.log(getReq);
+          console.log(getReq2);
+          streamServer.write(getReq2);
+        } else {
+          console.log("Connection failed");
+        }
+      }
+
+      // needed to keep socket variable in scope
+      var dummy = {};
+
+// try to connect to the server
+      console.log('Trying to connect: ' + srvUrl.port + ' '+ srvUrl.hostname);
+      dummy.socket = Tls.connect(srvUrl.port, srvUrl.hostname, function() {
+        console.log('connected');
+        // callback called only after successful socket connection
+        dummy.connected = true;
+        if (dummy.socket.authorized) {
+          console.log('authorised');
+          // authorization successful
+          dummy.socket.setEncoding('utf-8');
+          connected(dummy.socket);
+        } else {
+          console.log('unauthorised');
+          // authorization failed
+          console.log(dummy.socket.authorizationError);
+          connected(null);
+        }
+      });
+
+      dummy.socket.addListener('data', function(data) {
+        // received data
+        stream.write(data);
+        console.log(data);
+      });
+
+      dummy.socket.addListener('error', function(error) {
+        if (!dummy.connected) {
+          // socket was not connected, notify callback
+          connected(null);
+        }
+        console.log("FAIL");
+        console.log(error);
+      });
+
+      dummy.socket.addListener('close', function() {
+        console.log('CLOSE');
+        stream.close();
+        // do something
+      });
+/*
+      var cts = Tls.connect(
+        {
+          host: srvUrl.hostname,
+          port: srvUrl.port
+//          socket: stream
+        },
+        function()
+        {
+          var getReq = 'GET ' + srvUrl.path + ' HTTP/1.1\r\nHost: ' + srvUrl.hostname + '\r\n'
+          console.log(getReq);
+          cts.write(getReq);
+
+          stream.pipe(cts);
+          cts.pipe(stream);
+        }
+      );
+
+      cts.on('data', function(data)
+      {
+        console.log(data.toString());
+      });
+      cts.on('end', function() {
+        stream.end();
+      });
+*/
+
+/*
       var srvSocket = net.connect(srvUrl.port, srvUrl.hostname, function() {
         stream.write('HTTP/1.1 200 Connection Established\r\n' +
           'Proxy-agent: Node-Proxy\r\n' +
@@ -28,6 +117,7 @@ bs.on('connection', function(client){
         srvSocket.pipe(stream);
         stream.pipe(srvSocket);
       });
+*/
       return;
     }
 
