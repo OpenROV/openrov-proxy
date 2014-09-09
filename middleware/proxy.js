@@ -69,6 +69,5 @@ function handleSsl(requestData, stream) {
   client.on('end', function() {
     console.log('client disconnected');
     stream.end();
-    stream.destroy();
   });
 }

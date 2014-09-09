@@ -65,7 +65,6 @@ function proxyReq(req, res, head) {
     stream.on('end', function() {
       // When the proxy tells us everything was sent, we end the response to the client.
       res.end();
-      stream.destroy();
     });
   }
   else {

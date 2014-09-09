@@ -44,7 +44,6 @@
             $('#messages').append('<li>End of stream ' + url + '</li>');
             // end the stream to the rov. This will cause the proxy to end the response
             rovStream.end();
-            rovStream.distroy();
           });
         });
 
