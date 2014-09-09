@@ -63,7 +63,6 @@ function proxyReq(req, res, head) {
     req.socket.pipe(stream);
 
     stream.on('end', function() {
-      console.log("END");
       // When the proxy tells us everything was sent, we end the response to the client.
       res.end();
     });

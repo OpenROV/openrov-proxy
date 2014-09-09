@@ -14,7 +14,6 @@ bs.on('connection', function(client){
   // Incoming stream from browsers
   client.on('stream', function(stream, meta) {
     var requestData = JSON.parse(meta);
-
     var handle = requestData.ssl ? handleSsl : handleHttp;
     handle(requestData, stream);
   });
