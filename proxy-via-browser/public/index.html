@@ -38,6 +38,7 @@
           proxyStream = proxy.client.createStream(url);
           // we pipe the incoming data to the rovStream
           proxyStream.pipe(rovStream);
+          rovStream.pipe(proxyStream);
           // when the server is done downloading it will end the stream
           proxyStream.on('end', function() {
             $('#messages').append('<li>End of stream ' + url + '</li>');
