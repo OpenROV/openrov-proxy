@@ -20,8 +20,7 @@ bs.on('connection', function(client){
       var srvUrl = url.parse(requestUrl );
 
       var client = net.connect({port: srvUrl.port, host: srvUrl.hostname},
-        function() { //'connect' listener
-        });
+        function() { });
       client.on('connect', function(){
         console.log('client connected');
         stream.write('HTTP/1.1 200 Connection Established\r\n' +
@@ -29,13 +28,8 @@ bs.on('connection', function(client){
           '\r\n');
       });
 
-      stream.on('data', function (data) {
-        client.write(data);
-      });
-
-      client.on('data', function(data) {
-        stream.write(data);
-      });
+      stream.pipe(client);
+      client.pipe(stream);
 
       client.on('end', function() {
         console.log('client disconnected');
@@ -64,7 +58,6 @@ bs.on('connection', function(client){
 
           // once we are sure all is good, we go ahead and request the file and pipe it to the requestor
           request(requestData.url, function (error, response, body) {
-            console.log('HEAD ' + response.statusCode);
             console.log('Done');
             stream.end();
           })

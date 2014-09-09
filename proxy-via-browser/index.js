@@ -40,12 +40,11 @@ function proxyReq(req, res, head) {
   if (currentClient !== null) {
     var ssl = req.method === 'CONNECT';
     var url = (ssl ? 'https://' : '') + req.url;
-    var stream = currentClient.createStream( JSON.stringify({ head: head, url: url, ssl: ssl }));
+    var stream = currentClient.createStream( JSON.stringify({ head: head, url: url, ssl: ssl }) );
     console.log("Created stream for: " + url);
     res.statusCode = 200;
 
     stream.on('data', function(data) {
-      console.log('###');
       // error handling
       if (data[0] == '{' && data[data.length-1] == '}') {
         error = JSON.parse(data);
@@ -53,13 +52,6 @@ function proxyReq(req, res, head) {
         res.statusCode = error.statusCode === 0 ? 500 : error.statusCode;
         res.end("Error");
       }
-      else {
-        res.write(data);
-      }
-    });
-
-    req.socket.on('data', function(data) {
-      stream.write(data);
     });
 
     // this is where some of the magic happens.
@@ -67,8 +59,8 @@ function proxyReq(req, res, head) {
     // of a file and pipes the response to us.
     // Thanks to JavaScript streams, we can just pipe the data on towards our
     // client.
-//    stream.pipe(res);
-//    req.pipe(stream);
+    stream.pipe(res);
+    req.socket.pipe(stream);
 
     stream.on('end', function() {
       console.log("END");
