@@ -16,7 +16,7 @@ bs.on('connection', function(client) {
 
 app.use(function(req, res){
   if (req.url == '/' ) { // if the request is for '/' we send the index file
-    res.sendfile('./public/index.html');
+    res.sendfile(__dirname + '/public/index.html');
   }
   // otherwise we proxying the request
   else { proxyReq(req, res); }
