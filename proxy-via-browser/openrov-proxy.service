@@ -144,7 +144,29 @@ do_start()
 	# to handle requests from services started subsequently which depend
 	# on this one.  As a last resort, sleep for some time.
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  started $DESC" "$INIT_SCRIPT_NAME_NOEXT"
+
+	echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
+	echo HTTPS_PROXY=https://localhost:3000 >> /etc/environment
+	echo http_proxy=http://localhost:3000 >> /etc/environment
+	echo https_proxy=https://localhost:3000 >> /etc/environment
+	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set HTTP_PROXY/HTTPS_PROXY environment variables" "$INIT_SCRIPT_NAME_NOEXT"
+
+	git config --system http.proxy http://localhost:3000
+	git config --system https.proxy https://localhost:3000
+	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set git proxy variables" "$INIT_SCRIPT_NAME_NOEXT"
+
+	npm config set proxy http://localhost:3000 --global
+	npm config set https-proxy https://localhost:3000 --global
+	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set NPM proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
+
+	echo { > /.bowerrc
+	echo '"proxy":"http://localhost:3000",' >> /.bowerrc
+    echo '"https-proxy":"http://localhost:3000"' >> /.bowerrc
+    echo } > /.bowerrc
+    [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
+
 }
+
 
 #
 # Function that stops the daemon/service
