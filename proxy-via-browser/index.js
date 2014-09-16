@@ -1,11 +1,15 @@
 var fs = require('fs');
 var app = require('express')();
 var http = require('http').Server(app);
-var https = require('https');
 var BinaryServer = require('binaryjs').BinaryServer;
-var bs = BinaryServer({server: http});
+var bs = BinaryServer({port: 3010});
+var io = require('socket.io')(http);
 
 var currentClient = null;
+
+io.on('connection', function (socket) {
+  console.log('Socket.IO: connected');
+});
 
 bs.on('connection', function(client) {
   console.log('Connection to client');

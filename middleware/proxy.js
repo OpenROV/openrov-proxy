@@ -7,7 +7,8 @@ var request = require('request');
 
 var app = express();
 var server = http.createServer(app);
-var bs = BinaryServer({server: server});
+var bs = BinaryServer({port: 3011});
+var io = require('socket.io')(server);
 
 bs.on('connection', function(client){
   console.log('Connection to client');

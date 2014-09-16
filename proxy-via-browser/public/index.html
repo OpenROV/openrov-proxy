@@ -7,50 +7,68 @@
     <ul id="messages"></ul>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="http://cdn.binaryjs.com/0/binary.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
     <script>
+      //var host = 'build.openrov.com:3001';
+      var host = 'localhost';
+      var port = '3001';
+      var bjsPort = '3010';
       // Socket and BinaryClient to the proxy service
       var proxy = {
-        client: new BinaryClient('ws://build.openrov.com:3001')
-        //client: new BinaryClient('ws://localhost:3001')
+        socket: io.connect('http://' + host + ':' + port),
+        client: undefined
       };
 
       // Socket and BinaryClient on the ROV
       var rov = {
-        client: new BinaryClient('ws://' + document.location.host)
+        client: undefined,
+        socket: io.connect()
       };
 
-      proxy.client.on('open', function() {
-        $('#messages').append('<li>Connected to proxy</li>');
-      });
-      proxy.client.on('close', function() {
-        $('#messages').append('<li>Disconnected from proxy</li>');
-      });
+      proxy.socket.on('connect', function() {
+        proxy.client = new BinaryClient('ws://' + host + ':3011');
+        $('#messages').append('<li>Connected to proxy socket.io</li>');
 
-      rov.client.on('open', function() {
-        $('#messages').append('<li>Connected to ROV</li>');
-
-        // We got a request from the ROV HTTP proxy
-        rov.client.on('stream', function(rovStream, url) {
-          $('#messages').append('<li>Requested ' + url + '</li>');
-
-          // create a stream to the proxy on the server
-          // this will trigger the download of the requested file
-          proxyStream = proxy.client.createStream(url);
-          // we pipe the incoming data to the rovStream
-          proxyStream.pipe(rovStream);
-          rovStream.pipe(proxyStream);
-          // when the server is done downloading it will end the stream
-          proxyStream.on('end', function() {
-            $('#messages').append('<li>End of stream ' + url + '</li>');
-            // end the stream to the rov. This will cause the proxy to end the response
-            rovStream.end();
-          });
+        proxy.client.on('open', function() {
+          $('#messages').append('<li>Connected to proxy</li>');
         });
+        proxy.client.on('close', function() {
+          $('#messages').append('<li>Disconnected from proxy</li>');
+        });
+      });
 
+      rov.socket.on('connect', function() {
+        rov.client = new BinaryClient('ws://' + document.location.hostname + ':3010');
+        $('#messages').append('<li>Connected to ROV socket.io</li>')
+  
+        rov.client.on('open', function() {
+          $('#messages').append('<li>Connected to ROV</li>');
+
+          // We got a request from the ROV HTTP proxy
+          rov.client.on('stream', function(rovStream, url) {
+            $('#messages').append('<li>Requested ' + url + '</li>');
+
+            // create a stream to the proxy on the server
+            // this will trigger the download of the requested file
+            proxyStream = proxy.client.createStream(url);
+            // we pipe the incoming data to the rovStream
+            proxyStream.pipe(rovStream);
+            rovStream.pipe(proxyStream);
+            // when the server is done downloading it will end the stream
+            proxyStream.on('end', function() {
+              $('#messages').append('<li>End of stream ' + url + '</li>');
+              // end the stream to the rov. This will cause the proxy to end the response
+              rovStream.end();
+            });
+          });
+
+        });
+        rov.client.on('close', function() {
+          $('#messages').append('<li>Disconnected from ROV</li>');
+        });
       });
-      rov.client.on('close', function() {
-        $('#messages').append('<li>Disconnected from ROV</li>');
-      });
+
 </script>
   </body>
 </html>
