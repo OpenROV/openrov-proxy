@@ -145,6 +145,9 @@ do_start()
 	# on this one.  As a last resort, sleep for some time.
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  started $DESC" "$INIT_SCRIPT_NAME_NOEXT"
 
+	if [ !-f '/etc/environment_no_proxy' ]; then
+		cp /etc/environment /etc/environment_no_proxy
+	fi
 	echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
 	echo HTTPS_PROXY=https://localhost:3000 >> /etc/environment
 	echo http_proxy=http://localhost:3000 >> /etc/environment
@@ -162,7 +165,7 @@ do_start()
 	echo { > /.bowerrc
 	echo '"proxy":"http://localhost:3000",' >> /.bowerrc
     echo '"https-proxy":"http://localhost:3000"' >> /.bowerrc
-    echo } > /.bowerrc
+    echo } >> /.bowerrc
     [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
 
 }
@@ -195,6 +198,13 @@ do_stop()
 	rm -f $PIDFILE
   [ "$VERBOSE" != no ] && [ "$RETVAL" = 1 ] && log_daemon_msg "  --->  $DESC not running" "$INIT_SCRIPT_NAME_NOEXT"
   [ "$VERBOSE" != no -a "$RETVAL" = 0 ] && log_daemon_msg "  --->  $DESC stopped" "$INIT_SCRIPT_NAME_NOEXT"
+
+  	cat /etc/environment_no_proxy > /etc/environment
+  	git config --system --unset http.proxy
+	git config --system --unset https.proxy
+	npm config delete proxy --global
+	npm config delete https-proxy --global
+	rm /.bowerrc
 	return "$RETVAL"
 }
 
