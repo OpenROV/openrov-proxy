@@ -48,7 +48,7 @@
 # Description:       Starts the the proxy
 ### END INIT INFO
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="/opt/openrov/proxy/"
 
 # Author:OpenROV Inc. Dominik Fretz <dominik@openrov.com>
 #
