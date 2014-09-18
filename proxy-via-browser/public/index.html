@@ -10,8 +10,8 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      //var host = 'build.openrov.com';
-      var host = 'localhost';
+      var host = 'build.openrov.com';
+      //var host = 'localhost';
       var port = '3001';
       var bjsPort = '3010';
       // Socket and BinaryClient to the proxy service
@@ -54,8 +54,16 @@
               // this will trigger the download of the requested file
               proxyStream = proxy.client.createStream(url);
               // we pipe the incoming data to the rovStream
-              proxyStream.pipe(rovStream);
-              rovStream.pipe(proxyStream);
+
+              proxyStream.on('data', function(data) {
+                rovStream.write(data);
+                console.log('#');
+              });
+              rovStream.on('data', function(data) {
+                proxyStream.write(data);
+                console.log('@');
+              });
+
               // when the server is done downloading it will end the stream
               proxyStream.on('end', function() {
                 $('#messages').append('<li>End of stream ' + url + '</li>');
