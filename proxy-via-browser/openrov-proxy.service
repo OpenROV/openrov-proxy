@@ -147,11 +147,12 @@ do_start()
 
 	if [ !-f '/etc/environment_no_proxy' ]; then
 		cp /etc/environment /etc/environment_no_proxy
+        else	
+		echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
+		echo HTTPS_PROXY=https://localhost:3000 >> /etc/environment
+		echo http_proxy=http://localhost:3000 >> /etc/environment
+		echo https_proxy=https://localhost:3000 >> /etc/environment
 	fi
-	echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
-	echo HTTPS_PROXY=https://localhost:3000 >> /etc/environment
-	echo http_proxy=http://localhost:3000 >> /etc/environment
-	echo https_proxy=https://localhost:3000 >> /etc/environment
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set HTTP_PROXY/HTTPS_PROXY environment variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 	git config --system http.proxy http://localhost:3000
