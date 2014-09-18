@@ -167,6 +167,7 @@ do_start()
 	echo '"proxy":"http://localhost:3000",' >> /.bowerrc
     echo '"https-proxy":"http://localhost:3000"' >> /.bowerrc
     echo } >> /.bowerrc
+	echo 'Acquire::http::Proxy "http://localhost:3000";' > /etc/apt/apt.conf.d/80proxy
     [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
 
 }
