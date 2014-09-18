@@ -145,7 +145,7 @@ do_start()
 	# on this one.  As a last resort, sleep for some time.
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  started $DESC" "$INIT_SCRIPT_NAME_NOEXT"
 
-	if [ !-f '/etc/environment_no_proxy' ]; then
+	if [ ! -f /etc/environment_no_proxy ]; then
 		cp /etc/environment /etc/environment_no_proxy
         else	
 		echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
