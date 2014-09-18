@@ -168,6 +168,8 @@ do_start()
     echo '"https-proxy":"http://localhost:3000"' >> /.bowerrc
     echo } >> /.bowerrc
 	echo 'Acquire::http::Proxy "http://localhost:3000";' > /etc/apt/apt.conf.d/80proxy
+	echo 'Acquire::https::Proxy "https://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
+	echo 'Acquire::ftp::Proxy "http://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
     [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
 
 }
@@ -207,6 +209,7 @@ do_stop()
 	npm config delete proxy --global
 	npm config delete https-proxy --global
 	rm /.bowerrc
+        rm /etc/apt/apt.conf.d/80proxy
 	return "$RETVAL"
 }
 
