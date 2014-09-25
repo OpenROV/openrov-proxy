@@ -157,6 +157,7 @@ do_start()
 
 	git config --system http.proxy http://localhost:3000
 	git config --system https.proxy https://localhost:3000
+	git config --system url.https://github.com/.insteadOf git://github.com/
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set git proxy variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 	npm config set proxy http://localhost:3000 --global
@@ -206,6 +207,7 @@ do_stop()
   	cat /etc/environment_no_proxy > /etc/environment
   	git config --system --unset http.proxy
 	git config --system --unset https.proxy
+	git config --system --unset url.https://github.com/.insteadOf
 	npm config delete proxy --global
 	npm config delete https-proxy --global
 	rm /.bowerrc
