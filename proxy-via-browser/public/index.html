@@ -10,7 +10,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      var host = 'build.openrov.com';
+      var host = 'rovproxy.openrov.com';
       //var host = 'localhost';
       var port = '3001';
       var bjsPort = '3010';
@@ -41,7 +41,7 @@
       rov.socket.on('connect', function() {
         rov.client = new BinaryClient('ws://' + document.location.hostname + ':3010');
         $('#messages').append('<li>Connected to ROV socket.io</li>')
-  
+
         rov.client.on('open', function() {
           $('#messages').append('<li>Connected to ROV</li>');
 

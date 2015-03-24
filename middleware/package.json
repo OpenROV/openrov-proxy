@@ -1,8 +1,8 @@
 {
   "name": "socket-proxy-middleware",
   "version": "0.0.1",
-  "description": "Middlware for OpenROV proxy-via-browser",
-  "main": "proxy.js",
+  "description": "Cloud service for OpenROV proxy-via-browser",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,6 +12,7 @@
     "binaryjs": "^0.2.1",
     "express": "^4.8.5",
     "request": "^2.40.0",
+    "forever-monitor": "",
     "socket.io": "^1.1.0"
   }
 }
