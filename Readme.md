@@ -10,6 +10,8 @@ That can't be done easily as cross site scripting rules prohibit access to other
 
 A way to get around this, is to have a server on the internet, for example on a AWS server that acts as a middleware.
 
+For reporting issues: Use the primary software repository: https://github.com/OpenROV/openrov-software/issues
+
 Middleware
 ----------
 
