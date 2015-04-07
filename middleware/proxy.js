@@ -18,6 +18,16 @@ bs.on('connection', function(client){
     var handle = requestData.ssl ? handleSsl : handleHttp;
     handle(requestData, stream);
   });
+
+  client.heartbeat = setInterval(function () {
+    var stream = client.send("heartbeat");
+    console.log("<beat>");
+    stream.end();
+  },5000);
+
+  client.on('end', function(){
+    clearInterval(client.heartbeat);
+  })
 });
 server.listen(3001, function() {
   console.log('HTTP and BinaryJS server started on port 3001');
