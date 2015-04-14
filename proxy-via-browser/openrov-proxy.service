@@ -149,19 +149,19 @@ do_start()
 		cp /etc/environment /etc/environment_no_proxy
         else	
 		echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
-		echo HTTPS_PROXY=https://localhost:3000 >> /etc/environment
+		echo HTTPS_PROXY=http://localhost:3000 >> /etc/environment
 		echo http_proxy=http://localhost:3000 >> /etc/environment
-		echo https_proxy=https://localhost:3000 >> /etc/environment
+		echo https_proxy=http://localhost:3000 >> /etc/environment
 	fi
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set HTTP_PROXY/HTTPS_PROXY environment variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 	git config --system http.proxy http://localhost:3000
-	git config --system https.proxy https://localhost:3000
+	git config --system https.proxy http://localhost:3000
 	git config --system url.https://github.com/.insteadOf git://github.com/
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set git proxy variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 	npm config set proxy http://localhost:3000 --global
-	npm config set https-proxy https://localhost:3000 --global
+	npm config set https-proxy http://localhost:3000 --global
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set NPM proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
 
 	echo { > /.bowerrc
@@ -169,7 +169,7 @@ do_start()
     echo '"https-proxy":"http://localhost:3000"' >> /.bowerrc
     echo } >> /.bowerrc
 	echo 'Acquire::http::Proxy "http://localhost:3000";' > /etc/apt/apt.conf.d/80proxy
-	echo 'Acquire::https::Proxy "https://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
+	echo 'Acquire::https::Proxy "http://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
 	echo 'Acquire::ftp::Proxy "http://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
     [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
 
