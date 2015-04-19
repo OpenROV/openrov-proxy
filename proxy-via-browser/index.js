@@ -2,38 +2,52 @@ var fs = require('fs');
 var app = require('http').createServer(handler);
 var io = require('socket.io')(app);
 var fs = require('fs');
+var url = require('url');
+var exec = require('child_process').exec;
 var BinaryServer = require('binaryjs').BinaryServer;
 var bs = BinaryServer({ port: 3010 });
 var currentClient = null;
 var request = 0;
+
 io.on('connection', function (socket) {
   console.log('Socket.IO: connected');
 });
+
 bs.on('connection', function (client) {
   console.log('Connection to client');
   // this could be improved as right now we only keep one client (browser).
   // Should not be an issue as we only should have one browser connected anyway.
   currentClient = client;
 });
+
 app.addListener('connect', function (req, socket, head) {
   proxyReq(req, socket, head);
 });
-function handler(req, res) {
-  if (req.url == '/') {
-    // if the request is for '/' we send the index file
-    fs.readFile(__dirname + '/public/index.html', function (err, data) {
-      res.writeHead(200, {
-        'Content-Type': 'text/html',
-        'Content-Length': data.length
-      });
-      res.write(data);
-      res.end();
+
+function handler (req,res){
+  switch(url.parse(req.url).pathname) {
+  case '/':
+    fs.readFile(__dirname + '/public/index.html',function (err, data){
+        res.writeHead(200, {'Content-Type': 'text/html','Content-Length':data.length});
+        res.write(data);
+        res.end();
     });
-  }  // otherwise we proxying the request
-  else {
+    break;
+  case '/setdate':
+    var queryparms = url.parse(req.url,true).query;
+    if ('date' in queryparms){
+      exec('date -s @' + queryparms.date, function(err, stdout, stderr) {
+        if (err) {
+          console.log("unable to set time");
+          console.dir(err);
+        }
+      });
+    }
+    break;
+  default:
     proxyReq(req, res);
   }
-}
+};
 app.listen(3000);
 console.log('Server is listening');
 // This function acts as a HTTP proxy.

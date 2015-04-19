@@ -10,6 +10,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
+      $.get( 'setdate',  {date: new Date() / 1000});
       var host = 'rovproxy.openrov.com';
       //var host = 'localhost';
       var port = '3001';
