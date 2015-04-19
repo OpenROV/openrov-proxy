@@ -10,7 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "binaryjs": "^0.2.1",
-    "express": "^4.8.5",
     "forever-monitor": "",
     "socket.io": "^1.1.0"
   }

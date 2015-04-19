@@ -15,10 +15,8 @@ bs.on('connection', function (client) {
     var requestData = JSON.parse(meta);
     var handle;
     if (requestData.version == 1) {
-      console.log('version=1');
       handle = requestData.ssl ? handleSsl : handleHttp1;
     } else {
-      console.log('version=0');
       handle = requestData.ssl ? handleSsl : handleHttp;
     }
     handle(requestData, stream);
@@ -33,6 +31,12 @@ bs.on('connection', function (client) {
     clearInterval(client.heartbeat);
   });
 });
+
+bs.on('error', function(error) {
+  console.log("BinaryJS error: ");
+  console.dir(error);
+});
+
 server.listen(3001, function () {
   console.log('HTTP and BinaryJS server started on port 3001');
 });
@@ -101,5 +105,10 @@ function handleSsl(requestData, stream) {
     });
   client.on('end', function () {
     stream.end();
+  });
+  client.on('error', function(error){
+    stream.end();
+    console.log('SSL Net error:');
+    console.dir(error);
   });
 }
