@@ -1,6 +1,6 @@
 {
   "name": "socket-proxy-middleware",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Cloud service for OpenROV proxy-via-browser",
   "main": "server.js",
   "scripts": {

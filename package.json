@@ -1,6 +1,6 @@
 {
   "name": "openrov-proxy",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Suite of OpenROV projects that are deployed to the ROV",
   "main": "middleware/proxy.js",
   "scripts": {
