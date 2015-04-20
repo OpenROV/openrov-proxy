@@ -23,13 +23,21 @@ bs.on('connection', function (client) {
   });
   //helps keep the stream open over unreliable internet as the clients
   //don't auto reconnect well yet.
+  client.on('end', function () {
+    clearInterval(client.heartbeat);
+  });
+  client.on('close', function () {
+    clearInterval(client.heartbeat);
+  });
+  client.on('error', function (err) {
+    console.log("binaryjs client error:");
+    console.dir(err);
+  })
   client.heartbeat = setInterval(function () {
     var stream = client.send('heartbeat');
     stream.end();
   }, 5000);
-  client.on('end', function () {
-    clearInterval(client.heartbeat);
-  });
+
 });
 
 bs.on('error', function(error) {

@@ -17,7 +17,24 @@ bs.on('connection', function (client) {
   console.log('Connection to client');
   // this could be improved as right now we only keep one client (browser).
   // Should not be an issue as we only should have one browser connected anyway.
+
+  client.on('error', function (err) {
+    console.log('Connection error to client:');
+    console.dir(err);
+  });
+  client.on('close', function(){
+    if (currentClient == client){
+      currentClient = null;
+    }
+  });
+  client.on('open', function(){
+    console.log("Client connection is open");
+  });
   currentClient = client;
+});
+bs.on('error', function(err){
+  console.log("Binary.js service on rov had error:");
+  console.dir(err);
 });
 
 app.addListener('connect', function (req, socket, head) {
@@ -25,6 +42,18 @@ app.addListener('connect', function (req, socket, head) {
 });
 
 function handler (req,res){
+  console.log("Process Request:" + req.url);
+  if (url.parse(req.url).hostname !== null){
+    if (currentClient === null){
+      res.statusCode = 503;
+      res.end();
+      return;
+    }
+
+    proxyReq(req, res);
+    return;
+  }
+  console.log("Internally Serving: " + url.parse(req.url).pathname);
   switch(url.parse(req.url).pathname) {
   case '/':
     fs.readFile(__dirname + '/public/index.html',function (err, data){
@@ -45,7 +74,8 @@ function handler (req,res){
     }
     break;
   default:
-    proxyReq(req, res);
+    res.statusCode = 400;
+    res.end();
   }
 };
 app.listen(3000);
@@ -54,7 +84,7 @@ console.log('Server is listening');
 // The request looks something like: GET HTTP://www.google.com
 // We pass this on to to our proxy on the internet and they download it for us.
 function proxyReq(req, res, head) {
-  console.log('Request: ' + req.url);
+  console.log('Proxing : ' + req.url);
   if (currentClient !== null) {
     var ssl = req.method === 'CONNECT';
     var url = (ssl ? 'https://' : '') + req.url;
@@ -94,7 +124,6 @@ function proxyReq(req, res, head) {
           if (response_parsed) {
             headerparts[0] = headerparts[0].charAt(0).toUpperCase() + headerparts[0].slice(1);
             res.setHeader(headerparts[0], headerparts[1]);
-            console.log('Set Header: ' + data);
           } else {
             res.statusCode = data.split(' ')[1];
             res.statusMessage = data.split(' ')[2];
