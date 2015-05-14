@@ -8,6 +8,9 @@ var app = express();
 var server = http.createServer(app);
 var bs = BinaryServer({ port: 3011 });
 var io = require('socket.io')(server);
+var connectionNumber = 0;
+http.globalAgent.maxSockets=20;
+
 bs.on('connection', function (client) {
   console.log('Connection to client');
   // Incoming stream from browsers
@@ -100,23 +103,44 @@ function handleHttp(requestData, stream) {
   });
 }
 function handleSsl(requestData, stream) {
+
+  var conn_num = connectionNumber;
+  connectionNumber++;
+  console.log(conn_num+ ':Stream requested, url: ' + requestData.url);
   var requestUrl = requestData.url;
   var srvUrl = url.parse(requestUrl);
   var thestream = stream;
+  //console.dir(stream);
+  var d = new Date();
   var client = net.connect({
       port: srvUrl.port,
       host: srvUrl.hostname
     }, function () {
-      stream.write('HTTP/1.1 200 Connection Established\r\n' + 'Proxy-agent: Node-Proxy\r\n' + '\r\n');
+      var connectiondelay= (new Date() - d);
+      console.log(conn_num + ":net Connection delay:" + connectiondelay);
+      thestream.write('HTTP/1.1 200 Connection Established\r\n' + 'Proxy-agent: Node-Proxy\r\n' + '\r\n');
       thestream.pipe(client);
       client.pipe(thestream);
     });
   client.on('end', function () {
-    stream.end();
+    thestream.end();
+    console.log (conn_num+ ":done... " + requestData.url + ' ' + (new Date() - d) + 'ms');
   });
+  client.on('close', function() {
+    thestream.end();
+    console.log (conn_num + ":close recieved " + requestData.url  + ' ' + (new Date() - d) + 'ms');
+  })
   client.on('error', function(error){
-    stream.end();
-    console.log('SSL Net error:');
+    thestream.end();
+    console.log(conn_num + ':SSL Net error:');
     console.dir(error);
+  });
+  thestream.on('close', function(){
+    console.log(conn_num + ':BinaryJS stream hung up.');
+    client.end();
+  });
+  thestream.on('end', function(){
+    console.log(conn_num + ':BinaryJS stream hung up.');
+    client.end();
   });
 }

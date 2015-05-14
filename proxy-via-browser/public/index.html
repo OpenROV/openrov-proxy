@@ -53,7 +53,7 @@
             if (proxy.client) {
               // create a stream to the proxy on the server
               // this will trigger the download of the requested file
-              proxyStream = proxy.client.createStream(url);
+              var proxyStream = proxy.client.createStream(url);
               // we pipe the incoming data to the rovStream
 
               proxyStream.on('data', function(data) {
@@ -64,12 +64,23 @@
                 proxyStream.write(data);
                 console.log('@');
               });
+              rovStream.on('close', function(){
+                proxyStream.close();
+                console.log('closing stream to proxy');
+              });
+              rovStream.on('error', function(err){
+                proxyStream.close();
+                rovStream.destory();
+                console.log('closing stream to proxy due to rovstream error');
+                console.dir(err);
+              });
 
               // when the server is done downloading it will end the stream
               proxyStream.on('end', function() {
                 $('#messages').append('<li>End of stream ' + url + '</li>');
                 // end the stream to the rov. This will cause the proxy to end the response
                 rovStream.end();
+                rovStream.destroy();
               });
             }
           });

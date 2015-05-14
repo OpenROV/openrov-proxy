@@ -108,6 +108,14 @@ function proxyReq(req, res, head) {
       stream.pipe(res);
       req.socket.pipe(stream);
     }
+    req.on('close', function () {
+      console.log("detected requester closed socket");
+      stream.close();
+    });
+    req.on('end', function () {
+      console.log("detected requester ended socket");
+      stream.end();
+    });
     stream.on('data', function (data) {
       if (!headers_set) {
         if (data == '\r\n' || data == '\n') {
@@ -133,6 +141,10 @@ function proxyReq(req, res, head) {
       }
     });
     stream.on('end', function () {
+      // When the proxy tells us everything was sent, we end the response to the client.
+      res.end();
+    });
+    stream.on('close', function () {
       // When the proxy tells us everything was sent, we end the response to the client.
       res.end();
     });
