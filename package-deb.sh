@@ -8,9 +8,14 @@ npm install
 
 VERSION_NUMBER="`cat package.json | grep version | grep -o '[0-9]\.[0-9]\.[0-9]\+'`"
 GIT_COMMIT="`git rev-parse --short HEAD`"
-GIT_BRANCH="`git for-each-ref --format='%(objectname) %(refname:short)' refs/heads | grep $GIT_COMMIT | awk '{print $2}'`"
+
+if [ "x$GIT_BRANCH" = "x" ]
+then
+  GIT_BRANCH="`git for-each-ref --format='%(objectname) %(refname:short)' refs/heads | grep $GIT_COMMIT | awk '{print $2}'`"
+fi
+
 ARCH=`uname -m`
-if [ ${ARCH} = "armv7l"]
+if [ ${ARCH} = "armv7l" ]
 then
   ARCH="armhf"
 fi
