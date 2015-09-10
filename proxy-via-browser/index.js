@@ -62,6 +62,13 @@ function handler (req,res){
         res.end();
     });
     break;
+  case '/binary.min.js':
+      fs.readFile(__dirname + '/node_modules/binaryjs/dist/binary.min.js',function (err, data){
+          res.writeHead(200, {'Content-Type': 'text/html','Content-Length':data.length});
+          res.write(data);
+          res.end();
+      });
+  break;
   case '/setdate':
     var queryparms = url.parse(req.url,true).query;
     if ('date' in queryparms){
