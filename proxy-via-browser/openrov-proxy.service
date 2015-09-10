@@ -5,9 +5,9 @@
 #
 # Modified by OpenROV Inc. Dominik Fretz <dominik@openrov.com>
 #
-# ------------------------------------------------------------------------------ 
+# ------------------------------------------------------------------------------
 # SOME INFOS : fairly standard (debian) init script.
-#                 Note that node doesn't create a PID file (hence --make-pidfile) 
+#                 Note that node doesn't create a PID file (hence --make-pidfile)
 #                 has to be run in the background (hence --background)
 #                 and NOT as root (hence --chuid)
 #
@@ -32,15 +32,15 @@
 #     chmod 755,
 #
 #  4) if you wish the Daemon to be lauched at boot / stopped at shutdown :
-#     INSTALL : update-rc.d scriptname defaults 
+#     INSTALL : update-rc.d scriptname defaults
 #     (UNINSTALL : update-rc.d -f  scriptname remove)
 #
 #  5)  based on : Debian /etc/init.d/skeleton
 #      modified by : Peter Host (www.oghme.com)
-# ______________________________________________________________________________ 
+# ______________________________________________________________________________
 ### BEGIN INIT INFO
 # Provides:          openrov_proxy_service
-# Required-Start:    $remote_fs $named $syslog
+# Required-Start:    $remote_fs $named $syslog $all
 # Required-Stop:     $remote_fs $named $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -54,7 +54,7 @@ DIR="/opt/openrov/proxy/"
 #
 # Please remove the "Author" lines above and replace them
 # with your own name if you copy and modify this script.
-# ______________________________________________________________________________ 
+# ______________________________________________________________________________
 #
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin # modify if you need
@@ -80,19 +80,24 @@ DAEMON=/usr/bin/$NAME                 # this SHOULD POINT TO where your node exe
 #                                                                              #
 #                   END </MODIFY TO REFLECT YOUR SETTINGS>                     #
 #                (Nothing else to modify from this point on...)                #
-# ------------------------------------------------------------------------------ 
+# ------------------------------------------------------------------------------
 
 
 
 
 
 # Do NOT "set -e"
-
+ROUTE=`/sbin/route | grep 0.0.0.0 | wc -l`
+if [ $ROUTE -eq 1 ]
+then
+  echo "Route to internet already exists, aborting load of proxy"
+  exit 1
+fi
 [ $UID -eq "0" ] && LOCAL_VAR_RUN=/var/run # in case this script is run by root, override user setting
 THIS_ARG=$0
 INIT_SCRIPT_NAME=`basename $THIS_ARG`
 [ -h $THIS_ARG ] && INIT_SCRIPT_NAME=`basename $(readlink $THIS_ARG)` # in case of symlink
-INIT_SCRIPT_NAME_NOEXT=${INIT_SCRIPT_NAME%.*}                            
+INIT_SCRIPT_NAME_NOEXT=${INIT_SCRIPT_NAME%.*}
 PIDFILE="$LOCAL_VAR_RUN/$INIT_SCRIPT_NAME_NOEXT.pid"
 SCRIPTNAME=/etc/init.d/$INIT_SCRIPT_NAME
 
@@ -127,8 +132,8 @@ do_start()
 	if [ ! -f $ERRLOGFILE ];then touch $ERRLOG_FILE;fi
 	chown $NODEUSER $APPLOG_FILE
 	chown $NODEUSER $ERRLOG_FILE
-	arg1="1> $APPLOG_FILE"  
-	arg2="2> $ERRLOG_FILE" 
+	arg1="1> $APPLOG_FILE"
+	arg2="2> $ERRLOG_FILE"
 
 	# Return
 	#   0 if daemon has been started
@@ -138,7 +143,7 @@ do_start()
 		|| { [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  Daemon already running $DESC" "$INIT_SCRIPT_NAME_NOEXT"; return 1; }
 	start-stop-daemon --start --chuid $NODEUSER --make-pidfile --pidfile $PIDFILE --background --exec /bin/bash -- \
 		-c "exec $DAEMON $DAEMON_ARGS $arg1 $arg2"  \
-		|| { [ "$VERBOSE" != no ] && log_daemon_msg " ---> could not be start $DESC" "$INIT_SCRIPT_NAME_NOEXT"; return 2; }	
+		|| { [ "$VERBOSE" != no ] && log_daemon_msg " ---> could not be start $DESC" "$INIT_SCRIPT_NAME_NOEXT"; return 2; }
 
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
@@ -147,7 +152,7 @@ do_start()
 
 	if [ ! -f /etc/environment_no_proxy ]; then
 		cp /etc/environment /etc/environment_no_proxy
-        else	
+        else
 		echo HTTP_PROXY=http://localhost:3000 >> /etc/environment
 		echo HTTPS_PROXY=http://localhost:3000 >> /etc/environment
 		echo http_proxy=http://localhost:3000 >> /etc/environment
@@ -162,7 +167,7 @@ do_start()
 
 	npm config set proxy http://localhost:3000 --global
 	npm config set https-proxy http://localhost:3000 --global
-	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set NPM proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
+	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set NPM proxy variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 	echo { > /.bowerrc
 	echo '"proxy":"http://localhost:3000",' >> /.bowerrc
@@ -171,7 +176,7 @@ do_start()
 	echo 'Acquire::http::Proxy "http://localhost:3000";' > /etc/apt/apt.conf.d/80proxy
 	echo 'Acquire::https::Proxy "http://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
 	echo 'Acquire::ftp::Proxy "http://localhost:3000";' >> /etc/apt/apt.conf.d/80proxy
-    [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"	
+    [ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set BOWER proxy variables" "$INIT_SCRIPT_NAME_NOEXT"
 
 }
 
@@ -229,7 +234,7 @@ do_reload() {
 }
 
 #
-# Function that returns the daemon 
+# Function that returns the daemon
 #
 do_status() {
   #
@@ -240,15 +245,15 @@ do_status() {
   # 3 program is not running
   # 4 program or service status is unknown
   RUNNING=$(running)
-  
+
   # $PIDFILE corresponds to a live $NAME process
   ispidactive=$(pidof $NAME | grep `cat $PIDFILE 2>&1` >/dev/null 2>&1)
   ISPIDACTIVE=$?
 
   if [ -n "$RUNNING" ]; then
-    if [ $ISPIDACTIVE ]; then 
+    if [ $ISPIDACTIVE ]; then
       log_success_msg "$INIT_SCRIPT_NAME_NOEXT (launched by $USER) (--chuid $NODEUSER) is running"
-      exit 0      
+      exit 0
     fi
   else
     if [ -f $PIDFILE ]; then
@@ -259,7 +264,7 @@ do_status() {
       exit 3
     fi
   fi
-  
+
 }
 
 running() {
@@ -267,7 +272,7 @@ running() {
   if [ "$?" = 1 ]; then
     echo y
   fi
-  
+
 }
 
 
