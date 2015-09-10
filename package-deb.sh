@@ -10,12 +10,16 @@ VERSION_NUMBER="`cat package.json | grep version | grep -o '[0-9]\.[0-9]\.[0-9]\
 GIT_COMMIT="`git rev-parse --short HEAD`"
 GIT_BRANCH="`git for-each-ref --format='%(objectname) %(refname:short)' refs/heads | grep $GIT_COMMIT | awk '{print $2}'`"
 ARCH=`uname -m`
+if [ ${ARCH} = "armv7l"]
+then
+  ARCH="armhf"
+fi
 
 if [ "$GIT_BRANCH" = "master" ]
 then
   PACKAGE_VERSION="$VERSION_NUMBER~~"
 else
-  PACKAGE_VERSION="$VERSION_NUMBER~~$GIT_BRANCH."
+  PACKAGE_VERSION="$VERSION_NUMBER~~${GIT_BRANCH}."
 fi
 
 if [ "x${BUILD_NUMBER}" = "x" ]
