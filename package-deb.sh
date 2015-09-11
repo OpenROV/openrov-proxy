@@ -4,7 +4,9 @@ set -ex
 gem install fpm
 
 #Install dependencies
+pushd proxy-via-browser
 npm install
+popd
 
 VERSION_NUMBER="`cat package.json | grep version | grep -o '[0-9]\.[0-9]\.[0-9]\+'`"
 GIT_COMMIT="`git rev-parse --short HEAD`"
