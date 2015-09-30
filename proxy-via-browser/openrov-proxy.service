@@ -87,12 +87,7 @@ DAEMON=/usr/bin/$NAME                 # this SHOULD POINT TO where your node exe
 
 
 # Do NOT "set -e"
-ROUTE=`/sbin/route | grep 0.0.0.0 | wc -l`
-if [ $ROUTE -eq 1 ]
-then
-  echo "Route to internet already exists, aborting load of proxy"
-  exit 1
-fi
+
 [ $UID -eq "0" ] && LOCAL_VAR_RUN=/var/run # in case this script is run by root, override user setting
 THIS_ARG=$0
 INIT_SCRIPT_NAME=`basename $THIS_ARG`
