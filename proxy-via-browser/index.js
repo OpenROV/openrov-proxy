@@ -77,6 +77,8 @@ function handler (req,res){
           console.log("unable to set time");
           console.dir(err);
         }
+        res.writeHead(200);
+        res.end();
       });
     }
     break;
