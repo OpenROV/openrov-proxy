@@ -152,6 +152,7 @@ do_start()
 		echo HTTPS_PROXY=http://localhost:3000 >> /etc/environment
 		echo http_proxy=http://localhost:3000 >> /etc/environment
 		echo https_proxy=http://localhost:3000 >> /etc/environment
+		echo no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com" >> /etc/environment
 	fi
 	[ "$VERBOSE" != no ] && log_daemon_msg  "  --->  set HTTP_PROXY/HTTPS_PROXY environment variables" "$INIT_SCRIPT_NAME_NOEXT"
 
