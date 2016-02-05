@@ -143,7 +143,7 @@ function proxyReq(req, res, head) {
             res.setHeader(headerparts[0], headerparts[1]);
           } else {
             res.statusCode = data.split(' ')[1];
-            res.statusMessage = data.split(' ')[2];
+            res.statusMessage = data.split(' ')[2].trim();
             response_parsed = true;
           }
         }
