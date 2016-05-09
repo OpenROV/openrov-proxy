@@ -7,28 +7,27 @@
     <ul id="messages"></ul>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="binary.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="proxysocket/socket.io.js"></script>
 
     <script>
       $.get( 'setdate',  {date: new Date() / 1000});
-      var host = 'rovproxy.openrov.com';
+      var host = 'rovproxy2.openrov.com';
       //var host = 'localhost';
       var port = '3001';
-      var bjsPort = '3010';
       // Socket and BinaryClient to the proxy service
       var proxy = {
-        socket: io.connect('http://' + host + ':' + port),
+        socket: io.connect('https://' + host,{path:'/proxysocket'}), //NEED TO DOUBLE CHECK THE SERVER SIDE FOR THIS
         client: undefined
       };
 
       // Socket and BinaryClient on the ROV
       var rov = {
         client: undefined,
-        socket: io.connect()
+        socket: io.connect({path:'/proxysocket'})
       };
 
       proxy.socket.on('connect', function() {
-        proxy.client = new BinaryClient('ws://' + host + ':3011');
+        proxy.client = new BinaryClient('wss://' + host + '/binarysocket'); //server
         $('#messages').append('<li>Connected to proxy socket.io</li>');
 
         proxy.client.on('open', function() {
@@ -40,7 +39,7 @@
       });
 
       rov.socket.on('connect', function() {
-        rov.client = new BinaryClient('ws://' + document.location.hostname + ':3010');
+        rov.client = new BinaryClient(window.location.protocol=='https:'?'wss://':'ws://' + document.location.hostname + ':' +  window.location.port, '/proxybinarysocket');
         $('#messages').append('<li>Connected to ROV socket.io</li>')
 
         rov.client.on('open', function() {

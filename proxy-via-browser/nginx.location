@@ -1,0 +1,33 @@
+location /proxysocket{
+  proxy_pass http://127.0.0.1:3000/proxysocket;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
+  proxy_cache_bypass $http_upgrade;
+}
+
+location /proxybinarysocket{
+  proxy_pass http://127.0.0.1:3000/proxybinarysocket;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
+  proxy_cache_bypass $http_upgrade;
+}
+
+location /proxy {
+  rewrite /(.*) /$1 break;
+  proxy_pass http://127.0.0.1:3000/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_read_timeout 43200000;
+
+  proxy_redirect off;
+
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header Host $host;
+  proxy_set_header X-NginX-Proxy true;
+}

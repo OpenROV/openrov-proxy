@@ -1,11 +1,11 @@
 var fs = require('fs');
 var app = require('http').createServer(handler);
-var io = require('socket.io')(app);
+var io = require('socket.io')(app,{ log: false, origins: '*:*', path:'/proxysocket' });
 var fs = require('fs');
 var url = require('url');
 var exec = require('child_process').exec;
 var BinaryServer = require('binaryjs').BinaryServer;
-var bs = BinaryServer({ port: 3010 });
+var bs = BinaryServer({server:app, path:'/proxybinarysocket' });
 var currentClient = null;
 var request = 0;
 
