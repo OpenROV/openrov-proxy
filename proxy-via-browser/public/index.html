@@ -39,7 +39,7 @@
       });
 
       rov.socket.on('connect', function() {
-        rov.client = new BinaryClient(window.location.protocol=='https:'?'wss://':'ws://' + document.location.hostname + ':' +  window.location.port+ '/proxybinarysocket');
+        rov.client = new BinaryClient(window.location.protocol=='https:'?'wss://'+ document.location.hostname + '/proxybinarysocket':'ws://' + document.location.hostname + ':' +  window.location.port+ '/proxybinarysocket');
         $('#messages').append('<li>Connected to ROV socket.io</li>')
 
         rov.client.on('open', function() {
